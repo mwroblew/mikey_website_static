@@ -1,6 +1,6 @@
 # Reproducing the NGDP Gap Explorer
 
-The bundled `raw/` files preserve the public-data snapshot downloaded on October 12, 2026. `source_manifest.json` records the original URLs and SHA-256 hashes. Keeping this vintage is necessary to reproduce the published website values; current data downloads can contain revisions.
+The bundled `raw/` files preserve the latest validated public-data snapshot (originally downloaded on October 12, 2026). `source_manifest.json` records the original URLs and SHA-256 hashes. Keeping this vintage is necessary to reproduce the published website values; current data downloads can contain revisions.
 
 ## Run
 
@@ -28,6 +28,12 @@ A W-quarter benchmark averages forecasts for a target quarter from that quarter'
 
 This is a custom reconstruction, not a claim of exact replication of any published series. The web page explains its interpretation and limitations.
 
-## Updating
+## Automatic updating
 
-Provide compatible replacement source files using `--raw DIRECTORY`, with the filenames and worksheet names used in the bundled snapshot. Pass the actual download date with `--as-of YYYY-MM-DD`. Updating is a deliberate maintenance task, not an automatic feed. Review any source format changes and revise the visible snapshot date, initial values, and homepage preview in the HTML alongside the generated data. Preserve a source manifest for the new vintage.
+`python tools/refresh_ngdp.py` downloads the three sources listed in `source_manifest.json` into a temporary directory. It rejects malformed files, missing historical coverage, duplicate dates, non-finite results, incomplete windows, or disagreement between the CSV and chart. It computes all output and renders both pages before replacing any website files. The workflow publishes only after the script succeeds.
+
+A refresh includes the historical series, not just a new final observation, so GDP and survey revisions are reflected. The snapshot date changes when source bytes change; the check date records the last successful refresh. Both appear on the website. Every successful scheduled run commits its source files and hashes for reproducibility.
+
+The GitHub workflow runs at 17:23 UTC each weekday. See the root README for the one-time Pages setup and branch-protection requirements. Until this workflow is merged and enabled, refreshing remains manual.
+
+For offline validation, use `python tools/refresh_ngdp.py --source-dir tools/raw --check-date YYYY-MM-DD`. Run the regression tests with `python -m unittest discover -s tools/tests -v`. The original standalone `build_ngdp.py` remains available for calculation-only reproduction; `refresh_ngdp.py` coordinates the full website update.

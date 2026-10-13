@@ -19,13 +19,21 @@ Serve the repository with any static web server, for example `python3 -m http.se
 
 ## NGDP explorer
 
-`assets/data/ngdp.js` contains a frozen snapshot of all seventeen windows (4 through 20 quarters), with ten selected initially. `assets/data/ngdp-windows.csv` contains all observations, benchmarks, classifications, and counts of extrapolated forecast vintages.
+`assets/data/ngdp.js` contains the latest validated snapshot of all seventeen windows (4 through 20 quarters), with ten selected initially. `assets/data/ngdp-windows.csv` contains all observations, benchmarks, classifications, and counts of extrapolated forecast vintages.
 
 The axes stay fixed across windows. All quarterly observations are plotted directly. The slider, quarter menu, pointer inspection, and touch inspection share the same data. Longer windows begin later because only complete windows are used.
 
 The calculation uses current-quarter survey information plus W−1 earlier vintages. This is a consistent implementation across windows, not an assertion of exact replication of all published five- or twenty-quarter estimates. Classification bands use Luther's fixed thresholds, not forecast percentiles or confidence intervals. See the methodology section on `ngdp.html` and `tools/README.md`.
 
-The source data snapshot is October 12, 2026, with actual GDP through 2026Q2. Updating the page requires explicitly regenerating the data; it does not update automatically.
+The calculation is based on Martinez, Schibuola, and Beckworth (2026), extended to compare alternative planning and commitment horizons. The original snapshot was downloaded October 12, 2026. Current snapshot and check dates appear on the NGDP page and in `tools/source_manifest.json`.
+
+## Automatic refresh and publishing
+
+`.github/workflows/site.yml` checks the public FRED and Philadelphia Fed sources at 17:23 UTC each weekday and supports a manual run. It validates the downloaded history, regenerates all seventeen windows and the CSV, refreshes the homepage chart and visible metadata, records the source vintage in git, and deploys one complete GitHub Pages artifact. A failed download, validation, calculation, or commit stops deployment, leaving the existing website online. Pushes to main deploy the reviewed snapshot without requiring a source download.
+
+To activate after reviewing and merging the redesign, set Settings → Pages → Build and deployment → Source to **GitHub Actions**, enable Actions, and allow the workflow to commit data updates to `main`. Branch protection must permit those bot commits; the workflow never bypasses protection or force-pushes. The `github-pages` environment must allow deployment from `main`. Run **Refresh NGDP and publish website** once to check the initial deployment. Scheduled workflows only run on the default branch. GitHub may disable scheduled workflows in public repositories after 60 days without repository activity; check Actions if the displayed check date becomes stale. GitHub scheduling can be delayed.
+
+No personal access token or paid data API is required. `GITHUB_TOKEN` bot commits do not trigger branch-based Pages builds, so this workflow explicitly deploys the artifact in the same run. Do not enable this workflow on the draft branch or change the live Pages settings until the redesign is approved.
 
 ## Editing
 

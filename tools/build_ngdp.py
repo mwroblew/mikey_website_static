@@ -105,7 +105,7 @@ def main():
         recessions=spans, updated=args.as_of, actualThrough=str(gdp.index[-1]))
     (OUT/'ngdp.js').write_text('window.NGDP_DATA = '+json.dumps(payload,separators=(',',':'))+';\n')
     with (OUT/'ngdp-windows.csv').open('w',newline='') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow(['quarter','window_quarters','actual_ngdp_billions_saar',
             'benchmark_ngdp_billions_saar','gap_percent','classification','extrapolated_vintages'])
         for w,r in results.items():
