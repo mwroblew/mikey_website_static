@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-12",
+  "checked": "2026-10-13",
+  "files": [
+    {
+      "file": "raw/GDP.csv",
+      "bytes": 6398,
+      "sha256": "5d2a8770ac8661e0989113aad8be4b2ea4a0f5fa4549dc7f372ce6279a95c818",
+      "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP"
+    },
+    {
+      "file": "raw/spf_medians.xlsx",
+      "bytes": 554444,
+      "sha256": "d296e737331c406f7680414504a0d005472743709387f8fda6d969a1d2200977",
+      "source": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/historical-data/medianLevel.xlsx?hash=E52F5DEF4551C3EBD24031A04CE6E98A&sc_lang=en"
+    },
+    {
+      "file": "raw/USREC.csv",
+      "bytes": 26829,
+      "sha256": "a42a3581fe9c260dd3627febc84a7d563e5ed162cc7085a7518ebde99dc3c3b4",
+      "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=USREC"
+    }
+  ]
+}
