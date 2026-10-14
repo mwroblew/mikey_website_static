@@ -100,6 +100,31 @@ class RefreshTests(unittest.TestCase):
                 refresh.refresh(check_date='2026-10-13')
         self.assertEqual(before, self.state())
 
+    def test_historical_splice_and_semiannual_counts(self):
+        data = refresh.payload(self.root/'assets/data/ngdp.js')
+        rows = pd.read_csv(self.root/'assets/data/ngdp-windows.csv')
+        for width in range(4,21):
+            selected = rows[rows.window_quarters == width]
+            quarters = pd.PeriodIndex(selected.quarter, freq='Q')
+            self.assertTrue(quarters.equals(pd.period_range(quarters[0],quarters[-1],freq='Q')))
+            first_spf = pd.Period('1968Q4',freq='Q') + width-1
+            self.assertEqual(data['sourceSwitch'][str(width)], first_spf.year+(first_spf.quarter-1)/4)
+            for q, row in zip(quarters, selected.itertuples()):
+                self.assertEqual(row.survey, 'Livingston' if q < first_spf else 'SPF')
+                expected = sum((q-h).quarter in (2,4) for h in range(width)) if q < first_spf else width
+                self.assertEqual(row.forecast_vintages, expected)
+
+    def test_invalid_livingston_survey_date_preserves_website(self):
+        before = self.state()
+        book = pd.read_excel(self.sources/'livingston_medians.xlsx',sheet_name=None)
+        book['GDPX'].loc[0,'Date'] = pd.Timestamp('1946-03-01')
+        with pd.ExcelWriter(self.sources/'livingston_medians.xlsx') as writer:
+            for name, sheet in book.items():
+                sheet.to_excel(writer,sheet_name=name,index=False)
+        with self.assertRaisesRegex(ValueError,'semiannual survey dates'):
+            refresh.refresh(self.sources,'2026-10-14')
+        self.assertEqual(before,self.state())
+
 
 if __name__ == '__main__':
     unittest.main()

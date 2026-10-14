@@ -21,7 +21,7 @@ Serve the repository with any static web server, for example `python3 -m http.se
 
 `assets/data/ngdp.js` contains the latest validated snapshot of all seventeen windows (4 through 20 quarters), with ten selected initially. `assets/data/ngdp-windows.csv` contains all observations, benchmarks, classifications, and counts of extrapolated forecast vintages.
 
-The axes stay fixed across windows. All quarterly observations are plotted directly. The slider, quarter menu, pointer inspection, and touch inspection share the same data. Longer windows begin later because only complete windows are used.
+The axes stay fixed across windows. All quarterly observations are plotted directly as one continuous line. Livingston supplies the early history until the quarter before the first complete SPF window; SPF supplies every observation thereafter. The join is unadjusted and the quarter readout names the source. The source transition is stored per window in `sourceSwitch`. The slider, quarter menu, pointer inspection, and touch inspection share the same data. Longer windows begin later because only complete windows are used.
 
 The calculation uses current-quarter survey information plus W−1 earlier vintages. This is a consistent implementation across windows, not an assertion of exact replication of all published five- or twenty-quarter estimates. Classification bands use Luther's fixed thresholds, not forecast percentiles or confidence intervals. See the methodology section on `ngdp.html` and `tools/README.md`.
 
