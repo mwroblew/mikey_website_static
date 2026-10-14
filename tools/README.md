@@ -24,13 +24,21 @@ For each survey origin, the script takes median SPF nominal GDP forecast levels 
 
 Beyond the quarterly forecast horizon, it uses long-run real growth and CPI forecasts adjusted by the terminal GDP-deflator/CPI wedge. When long-run forecasts are unavailable, it extends terminal quarterly growth. Before 1992, the SPF's nominal GNP forecast growth serves as a proxy for GDP growth.
 
-A W-quarter benchmark averages forecasts for a target quarter from that quarter's survey and the preceding W−1 surveys. Only complete windows are included. The gap is `100 × (actual / benchmark − 1)`. All window settings use this same construction. The CSV also reports how many component forecasts were extrapolated. Monetary-policy labels apply Luther's fixed thresholds; they are not confidence intervals or causal estimates.
+A W-quarter SPF benchmark averages forecasts for a target quarter from that quarter's survey and the preceding W−1 surveys. Only complete windows are included. The gap is `100 × (actual / benchmark − 1)`. All window settings use this same construction. The CSV also reports how many component forecasts were extrapolated. Monetary-policy labels apply Luther's fixed thresholds; they are not confidence intervals or causal estimates.
 
 This is a custom reconstruction, not a claim of exact replication of any published series. The web page explains its interpretation and limitations.
 
+## Livingston historical extension
+
+The bundled `livingston_medians.xlsx` contains median Philadelphia Fed Livingston forecasts. For each window, only Livingston targets before the first complete SPF window are retained. All existing SPF values remain unchanged. The two segments are joined directly without blending, offsets, or smoothing. `sourceSwitch` in the chart data records the first SPF quarter for each window; the CSV records `survey` and `forecast_vintages` for every row.
+
+Livingston uses only actual June/December survey origins within the same W-quarter interval. Each survey has equal weight, so a ten-quarter window contains five Livingston surveys. Forecast targets between reported levels are interpolated in logs within each survey. Paths are rebased to the same previous-quarter revised GDP used for SPF. Because this extension uses only surveys before 1974, long-run survey expectations are unavailable; tails extend the growth between the six- and twelve-month forecast levels. Only complete scheduled sets of semiannual origins are included. Early GNP forecast growth is used as a proxy for GDP growth.
+
+The historical extension is provisional, especially the size of early peaks: historical-base accuracy and extrapolation remain limitations. The original bases reproduce the prior Livingston exercise; the December 1999 base discrepancy does not enter this pre-SPF extension.
+
 ## Automatic updating
 
-`python tools/refresh_ngdp.py` downloads the three sources listed in `source_manifest.json` into a temporary directory. It rejects malformed files, missing historical coverage, duplicate dates, non-finite results, incomplete windows, or disagreement between the CSV and chart. It computes all output and renders both pages before replacing any website files. The workflow publishes only after the script succeeds.
+`python tools/refresh_ngdp.py` downloads the four sources listed in `source_manifest.json` into a temporary directory. It rejects malformed files, missing historical coverage, duplicate dates, non-finite results, incomplete windows, or disagreement between the CSV and chart. It computes all output and renders both pages before replacing any website files. The workflow publishes only after the script succeeds.
 
 A refresh includes the historical series, not just a new final observation, so GDP and survey revisions are reflected. The snapshot date changes when source bytes change; the check date records the last successful refresh. Both appear on the website. Every successful scheduled run commits its source files and hashes for reproducibility.
 

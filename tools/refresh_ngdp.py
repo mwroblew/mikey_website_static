@@ -80,6 +80,19 @@ def validate_sources(raw, previous):
             values = pd.to_numeric(table[column], errors='raise').dropna()
             if not np.isfinite(values).all():
                 raise ValueError(f'SPF {column}: invalid values')
+    livingston = pd.read_excel(raw/'livingston_medians.xlsx', sheet_name='GDPX')
+    old_livingston = pd.read_excel(previous/'livingston_medians.xlsx', sheet_name='GDPX')
+    if not {'Date','GDPX_BP','GDPX_ZM','GDPX_6M','GDPX_12M'}.issubset(livingston.columns):
+        raise ValueError('Livingston: unexpected schema')
+    dates = pd.DatetimeIndex(pd.to_datetime(livingston.Date, errors='raise'))
+    if dates.hasnans or dates.has_duplicates or not dates.is_monotonic_increasing or not dates.month.isin([6,12]).all():
+        raise ValueError('Livingston: invalid semiannual survey dates')
+    if not pd.DatetimeIndex(pd.to_datetime(old_livingston.Date)).isin(dates).all():
+        raise ValueError('Livingston: downloaded history regressed')
+    for column in ['GDPX_BP','GDPX_ZM','GDPX_6M','GDPX_12M']:
+        values = pd.to_numeric(livingston[column], errors='raise').dropna()
+        if not np.isfinite(values).all() or (values <= 0).any():
+            raise ValueError(f'Livingston {column}: invalid levels')
     return gdp
 
 
@@ -89,6 +102,8 @@ def validate_output(out, existing, gdp):
     csv = pd.read_csv(out / 'ngdp-windows.csv')
     if set(data['series']) != {str(w) for w in range(4, 21)}:
         raise ValueError('Incomplete window collection')
+    if set(data.get('sourceSwitch', {})) != set(data['series']):
+        raise ValueError('Missing survey transition metadata')
     if data['actualThrough'] != str(gdp[-1]):
         raise ValueError('Latest GDP not represented')
     if csv.duplicated(['quarter', 'window_quarters']).any():
@@ -105,6 +120,13 @@ def validate_output(out, existing, gdp):
         times = dates.year + (dates.quarter - 1) / 4
         if len(rows) != len(points) or not np.allclose(times, values[:, 0]) or not np.allclose(rows.gap_percent, values[:, 1], atol=1e-6):
             raise ValueError(f'{width}Q: CSV and chart disagree')
+        expected_source = np.where(times < data['sourceSwitch'][width], 'Livingston', 'SPF')
+        if not np.array_equal(rows.survey.to_numpy(), expected_source):
+            raise ValueError(f'{width}Q: incorrect survey splice')
+        counts = [sum((q-h).quarter in (2,4) for h in range(int(width)))
+                  if source == 'Livingston' else int(width) for q,source in zip(dates, expected_source)]
+        if not np.array_equal(rows.forecast_vintages.to_numpy(), counts):
+            raise ValueError(f'{width}Q: incorrect survey counts')
     return data
 
 

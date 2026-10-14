@@ -19,6 +19,12 @@
       "bytes": 26829,
       "sha256": "a42a3581fe9c260dd3627febc84a7d563e5ed162cc7085a7518ebde99dc3c3b4",
       "source": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=USREC"
+    },
+    {
+      "file": "raw/livingston_medians.xlsx",
+      "bytes": 162457,
+      "sha256": "ddb2a9f7ed51c2964921d04efefbe3363b3d8aa223df0c7efc28723d4a8175df",
+      "source": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/livingston-survey/historical-data/medians.xlsx"
     }
   ]
 }
